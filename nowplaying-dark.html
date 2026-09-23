@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Now Playing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Special+Elite&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root { --void:#0a0a0a; --ash:#d9d9d9; --bone:#efe9df; --blood:#c1121f; --grey:#8a8a8a; }
   * { box-sizing:border-box; margin:0; }
@@ -12,7 +12,7 @@
   #w { display:flex; align-items:center; width:500px; height:150px; padding:0 10px; opacity:0; transition:opacity .6s ease; }
   #w.on { opacity:1; }
   #p { position:relative; display:flex; align-items:center; gap:16px; width:100%; height:118px; padding:11px 14px 11px 11px;
-       border:0
+       background:transparent; border:1px solid rgba(217,217,217,.22); overflow:hidden; }
   #cw { position:relative; isolation:isolate; width:96px; height:96px; flex:none; }
   #cw::after { content:""; position:absolute; inset:0; background:var(--blood); mix-blend-mode:multiply; opacity:.6; }
   #cover { width:100%; height:100%; background:#222 center/cover; filter:grayscale(1) contrast(1.2) brightness(.9); }
@@ -24,7 +24,7 @@
             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #bar { margin-top:10px; height:3px; background:rgba(217,217,217,.2); }
   #fill { height:100%; width:0; background:var(--blood); box-shadow:0 0 8px var(--blood); }
-  #meta { text-shadow:0 1px 6px rgba(0,0,0,.85); display:flex; align-items:center; gap:9px; margin-top:7px; font-size:13px; color:var(--grey); font-variant-numeric:tabular-nums; }
+  #meta { font-family:"IBM Plex Mono",Consolas,monospace; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,.8); display:flex; align-items:center; gap:9px; margin-top:7px; font-size:13px; color:var(--ash); font-variant-numeric:tabular-nums; }
   #tot { margin-left:auto; }
   #eq { display:flex; align-items:flex-end; gap:2px; height:12px; }
   #eq i { width:2px; height:100%; background:var(--blood); transform-origin:bottom; animation:eq 1s ease-in-out infinite alternate; }
@@ -39,6 +39,8 @@
                       60%{transform:translate(-3px,0);opacity:.35} 80%{transform:translate(3px,1px);opacity:.8} 100%{transform:translate(0);opacity:.1} }
   .swap #title,.swap #cover { animation:glitch .35s linear forwards; }
   .swap #artist { opacity:0; }
+  #title .mq { display:inline-block; animation:mq 9s ease-in-out infinite alternate; }
+  @keyframes mq { 0%,15%{transform:translateX(0)} 85%,100%{transform:translateX(calc(-1 * var(--o)))} }
   #title,#artist,#cover { transition:opacity .3s ease; }
   #login { display:none; margin:20px; padding:10px 18px; font:400 15px "Special Elite","Courier New",monospace; color:var(--bone);
            background:var(--void); border:1px solid var(--blood); cursor:pointer; }
@@ -111,6 +113,21 @@ const refresh = () => {
 const fmt = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
 let cur = null, prog = 0, dur = 1, stamp = 0, playing = false;
 
+function fit() {
+  const t = $("title"), txt = t.textContent;
+  t.textContent = txt; t.style.textOverflow = "ellipsis";
+  let f = 36; t.style.fontSize = f + "px";
+  while (t.scrollWidth > t.clientWidth && f > 26) { f--; t.style.fontSize = f + "px"; }
+  const over = t.scrollWidth - t.clientWidth;
+  if (over > 0) {
+    t.textContent = ""; t.style.textOverflow = "clip";
+    const m = document.createElement("span");
+    m.className = "mq"; m.textContent = txt; m.style.setProperty("--o", (over + 6) + "px");
+    t.appendChild(m);
+  }
+}
+if (document.fonts) document.fonts.ready.then(() => { if (cur !== null) fit(); });
+
 function show(t) {
   const w = $("w");
   if (!t) { w.classList.remove("on"); cur = null; return; }
@@ -118,7 +135,7 @@ function show(t) {
     const first = cur === null;
     cur = t.id;
     const apply = () => {
-      $("title").textContent = t.name;
+      $("title").textContent = t.name; fit();
       $("artist").textContent = t.artists.map(a => a.name).join(", ");
       const img = t.album.images[1] || t.album.images[0];
       $("cover").style.backgroundImage = img ? `url(${img.url})` : "none";
