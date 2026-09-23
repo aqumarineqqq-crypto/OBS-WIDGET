@@ -9,8 +9,9 @@
   :root { --void:#0a0a0a; --ash:#d9d9d9; --bone:#efe9df; --blood:#c1121f; --grey:#8a8a8a; }
   * { box-sizing:border-box; margin:0; }
   html,body { background:transparent; overflow:hidden; font-family:"Special Elite","Courier New",monospace; }
-  #w { display:flex; align-items:center; width:500px; height:150px; padding:0 10px; opacity:0; transition:opacity .6s ease; }
+  #w { display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:6px; width:500px; height:150px; padding:0 10px; opacity:0; transition:opacity .6s ease; }
   #w.on { opacity:1; }
+  #now { font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--blood); text-shadow:0 1px 4px rgba(0,0,0,.85); }
   #p { position:relative; display:flex; align-items:center; gap:16px; width:100%; height:118px; padding:11px 14px 11px 11px;
        background:transparent; border:1px solid rgba(217,217,217,.22); overflow:hidden; }
   #cw { position:relative; isolation:isolate; width:96px; height:96px; flex:none; }
@@ -49,6 +50,7 @@
 </head>
 <body>
 <div id="w">
+  <div id="now">Сейчас играет</div>
   <div id="p">
     <div id="cw"><div id="cover"></div></div>
     <div id="card">
